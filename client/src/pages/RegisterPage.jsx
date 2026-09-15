@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { sendEmailVerification } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import Navbar from '../components/Navbar';
@@ -13,9 +14,18 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { signup, loginWithGoogle, updateUserName } = useAuth();
+  const { signup, loginWithGoogle, updateUserName, currentUser } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/chat";
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(from, { replace: true });
+    }
+  }, [currentUser, navigate, from]);
 
   const validate = () => {
     const newErrors = {};
@@ -66,9 +76,11 @@ const RegisterPage = () => {
       // Update profile with name
       if (userCredential.user) {
         await updateUserName(userCredential.user, name);
+        // Send email verification
+        sendEmailVerification(userCredential.user).catch(console.error);
       }
-      showToast({ type: 'success', message: 'Account created successfully!' });
-      navigate('/chat', { replace: true });
+      showToast({ type: 'info', message: 'Account created! Please check your email to verify your account.' });
+      navigate(from, { replace: true });
     } catch (error) {
       showToast({ type: 'error', message: mapFirebaseError(error) });
     } finally {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -12,13 +12,19 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   
-  const { login, loginWithGoogle, resetPassword } = useAuth();
+  const { login, loginWithGoogle, resetPassword, currentUser } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Redirect to where they came from or chat
   const from = location.state?.from?.pathname || "/chat";
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(from, { replace: true });
+    }
+  }, [currentUser, navigate, from]);
 
   const validate = () => {
     const newErrors = {};

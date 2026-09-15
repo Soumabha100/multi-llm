@@ -8,7 +8,8 @@ import {
   where, 
   orderBy, 
   getDocs,
-  serverTimestamp 
+  serverTimestamp,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -98,12 +99,26 @@ export const updateSession = async (sessionId, updates) => {
 };
 
 /**
- * Deletes a session and conceptually all its subcollection messages.
- * Note: In a production app, deleting a document doesn't automatically delete subcollections
- * unless done via a Cloud Function or batch deletion. For simplicity, we just delete the parent.
+ * Deletes a session and all its subcollection messages.
  * @param {string} sessionId - The session ID.
  */
 export const deleteSession = async (sessionId) => {
   const sessionRef = doc(db, SESSIONS_COLLECTION, sessionId);
-  await deleteDoc(sessionRef);
+  const messagesRef = collection(sessionRef, MESSAGES_COLLECTION);
+  
+  const batch = writeBatch(db);
+  
+  // Get all messages in the session's subcollection
+  const messagesSnapshot = await getDocs(messagesRef);
+  
+  // Add each message deletion to the batch
+  messagesSnapshot.forEach((messageDoc) => {
+    batch.delete(messageDoc.ref);
+  });
+  
+  // Add the parent session deletion to the batch
+  batch.delete(sessionRef);
+  
+  // Commit the batch
+  await batch.commit();
 };

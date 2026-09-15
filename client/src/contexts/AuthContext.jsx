@@ -62,9 +62,17 @@ export const AuthProvider = ({ children }) => {
     updateUserName
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[var(--accent-openai)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
