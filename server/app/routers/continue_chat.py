@@ -19,7 +19,8 @@ async def continue_conversation(request: ContinueRequest):
         response = await orchestrator.handle_continue_chat(
             session_id=request.session_id,
             selected_model=request.selected_model,
-            message=request.message
+            message=request.message,
+            history=request.history
         )
         return response
     except Exception as exc:

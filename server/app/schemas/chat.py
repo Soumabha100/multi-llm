@@ -1,5 +1,6 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
+from app.schemas.common import ChatMessage
 
 
 class ChatRequest(BaseModel):
@@ -18,6 +19,10 @@ class ChatRequest(BaseModel):
         default=None,
         max_length=2000,
         description="Optional instructions directing the tone or role of all models."
+    )
+    history: Optional[List[ChatMessage]] = Field(
+        default=None,
+        description="Optional conversation history provided by the client to hydrate state."
     )
 
 

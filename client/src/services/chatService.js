@@ -9,7 +9,9 @@ import {
   orderBy, 
   getDocs,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  setDoc,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -121,4 +123,35 @@ export const deleteSession = async (sessionId) => {
   
   // Commit the batch
   await batch.commit();
+};
+
+/**
+ * Creates or updates a user profile document in the users collection.
+ * @param {string} userId - The Firebase Auth UID.
+ * @param {Object} userData - Data to store (email, displayName, etc.)
+ */
+export const createUserProfile = async (userId, userData) => {
+  const userRef = doc(db, 'users', userId);
+  await setDoc(userRef, {
+    ...userData,
+    uid: userId,
+    updatedAt: serverTimestamp(),
+    createdAt: userData.createdAt || serverTimestamp()
+  }, { merge: true });
+};
+
+/**
+ * Fetches a user profile document from the users collection.
+ * @param {string} userId - The Firebase Auth UID.
+ * @returns {Promise<Object|null>} The user profile data, or null if not found.
+ */
+export const getUserProfile = async (userId) => {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  
+  if (userSnap.exists()) {
+    return userSnap.data();
+  } else {
+    return null;
+  }
 };

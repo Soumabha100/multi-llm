@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { sendEmailVerification } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { createUserProfile } from '../services/chatService';
 import Navbar from '../components/Navbar';
 import { Loader2 } from 'lucide-react';
 
@@ -76,6 +77,11 @@ const RegisterPage = () => {
       // Update profile with name
       if (userCredential.user) {
         await updateUserName(userCredential.user, name);
+        // Create user profile in Firestore
+        await createUserProfile(userCredential.user.uid, {
+          email: userCredential.user.email,
+          displayName: name,
+        });
         // Send email verification
         sendEmailVerification(userCredential.user).catch(console.error);
       }

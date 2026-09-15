@@ -79,11 +79,15 @@ class LLMOrchestrator:
         self,
         message: str,
         session_id: Optional[str] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
+        history: Optional[List[ChatMessage]] = None
     ) -> ChatResponse:
         session = session_store.get_or_create(session_id=session_id, system_prompt=system_prompt)
         active_session_id = session.session_id
         eff_system_prompt = system_prompt or session.system_prompt
+
+        if history is not None:
+            session_store.hydrate_all_histories(active_session_id, history)
 
         # Append user message to all models
         session_store.add_user_message_to_all(active_session_id, message)
@@ -140,7 +144,8 @@ class LLMOrchestrator:
         self,
         session_id: str,
         selected_model: ModelProvider,
-        message: str
+        message: str,
+        history: Optional[List[ChatMessage]] = None
     ) -> ContinueResponse:
         session = session_store.get_session(session_id)
         if not session:
@@ -148,6 +153,10 @@ class LLMOrchestrator:
             session = session_store.get_or_create(session_id)
 
         provider_key = selected_model.value
+        
+        if history is not None:
+            session_store.hydrate_provider_history(session_id, provider_key, history)
+
         session_store.add_user_message_to_provider(session_id, provider_key, message)
 
         history = session_store.get_history(session_id, provider_key)

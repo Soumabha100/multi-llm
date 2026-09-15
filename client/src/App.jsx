@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ChatDashboard from './pages/ChatDashboard';
+import SingleModelChat from './pages/SingleModelChat';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -28,6 +29,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ChatDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/chat/:sessionId/model/:modelId" 
+        element={
+          <ProtectedRoute>
+            <SingleModelChat />
           </ProtectedRoute>
         } 
       />

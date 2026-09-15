@@ -22,6 +22,10 @@ service cloud.firestore {
                            get(/databases/$(database)/documents/sessions/$(sessionId)).data.uid == request.auth.uid;
       }
     }
+    
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
 
     // Deny-by-default: Explicitly block any path not covered above
     match /{document=**} {

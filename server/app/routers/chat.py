@@ -16,7 +16,8 @@ async def chat_parallel(request: ChatRequest):
         response = await orchestrator.handle_parallel_chat(
             message=request.message,
             session_id=request.session_id,
-            system_prompt=request.system_prompt
+            system_prompt=request.system_prompt,
+            history=request.history
         )
         return response
     except Exception as exc:

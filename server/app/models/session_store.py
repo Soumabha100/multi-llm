@@ -109,6 +109,21 @@ class SessionStore:
         with self._lock:
             return self._sessions.get(session_id)
 
+    def hydrate_all_histories(self, session_id: str, history: List[ChatMessage]) -> None:
+        """Replace all providers' histories with the provided history."""
+        with self._lock:
+            session = self._sessions.get(session_id)
+            if session:
+                for provider in session.histories:
+                    session.histories[provider] = list(history)
+
+    def hydrate_provider_history(self, session_id: str, provider: str, history: List[ChatMessage]) -> None:
+        """Replace a specific provider's history with the provided history."""
+        with self._lock:
+            session = self._sessions.get(session_id)
+            if session:
+                session.histories[provider] = list(history)
+
     def clear_session(self, session_id: str) -> bool:
         with self._lock:
             if session_id in self._sessions:
