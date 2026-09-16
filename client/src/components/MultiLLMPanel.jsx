@@ -27,7 +27,13 @@ const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isPr
           </div>
         ) : (
           <div className="prose dark:prose-invert max-w-none text-[var(--text-secondary)] text-sm leading-relaxed">
-            {response?.response || "Waiting for response..."}
+            {response?.status === 'error' ? (
+              <div className="text-red-500 dark:text-red-400 font-medium">
+                {response.error || "An error occurred."}
+              </div>
+            ) : (
+              response?.response || "Waiting for response..."
+            )}
           </div>
         )}
       </div>
