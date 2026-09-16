@@ -9,6 +9,7 @@ from app.models.session_store import session_store
 from app.services.openai_service import OpenAIService
 from app.services.claude_service import ClaudeService
 from app.services.gemini_service import GeminiService
+from app.services.prompt_manager import get_system_prompt
 
 
 class LLMOrchestrator:
@@ -80,64 +81,14 @@ class LLMOrchestrator:
         message: str,
         session_id: Optional[str] = None,
         system_prompt: Optional[str] = None,
-        history: Optional[List[ChatMessage]] = None
+        user_id: Optional[str] = None
     ) -> ChatResponse:
-        session = session_store.get_or_create(session_id=session_id, system_prompt=system_prompt)
-        active_session_id = session.session_id
-        eff_system_prompt = system_prompt or session.system_prompt
-
-        if history is not None:
-            session_store.hydrate_all_histories(active_session_id, history)
-
-        # Append user message to all models
-        session_store.add_user_message_to_all(active_session_id, message)
-
-        # Build parallel tasks for each provider
-        providers = [
-            ModelProvider.OPENAI.value,
-            ModelProvider.CLAUDE.value,
-            ModelProvider.GEMINI.value
-        ]
-
-        tasks = [
-            self._call_single_model(
-                provider=p,
-                messages=session_store.get_history(active_session_id, p),
-                system_prompt=eff_system_prompt
-            )
-            for p in providers
-        ]
-
-        # Concurrent parallel execution with fault isolation
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        responses_map: Dict[str, ModelResponseItem] = {}
-        for provider, res in zip(providers, results):
-            if isinstance(res, Exception):
-                service = self.services.get(provider)
-                responses_map[provider] = ModelResponseItem(
-                    status="error",
-                    provider=provider,
-                    model=service.model_name if service else "unknown",
-                    error=str(res),
-                    latency_ms=0.0
-                )
-            else:
-                responses_map[provider] = res
-                # Record successful assistant response into session store
-                if res.status == "success" and res.response:
-                    session_store.add_assistant_response(
-                        session_id=active_session_id,
-                        provider=provider,
-                        model_name=res.model,
-                        content=res.response
-                    )
-
-        return ChatResponse(
-            session_id=active_session_id,
-            user_message=message,
-            system_prompt=eff_system_prompt,
-            responses=responses_map
+        from app.services.llm_manager import llm_manager
+        return await llm_manager.handle_chat(
+            message=message,
+            session_id=session_id,
+            system_prompt=system_prompt,
+            user_id=user_id
         )
 
     async def handle_continue_chat(
@@ -145,25 +96,32 @@ class LLMOrchestrator:
         session_id: str,
         selected_model: ModelProvider,
         message: str,
-        history: Optional[List[ChatMessage]] = None
+        system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None
     ) -> ContinueResponse:
         session = session_store.get_session(session_id)
         if not session:
             # Create if not found
-            session = session_store.get_or_create(session_id)
+            session = session_store.get_or_create(
+                session_id=session_id,
+                system_prompt=system_prompt,
+                user_id=user_id
+            )
+        elif user_id and not session.user_id:
+            session.user_id = user_id
+
+        if system_prompt is not None:
+            session_store.set_system_prompt(session_id, system_prompt)
 
         provider_key = selected_model.value
-        
-        if history is not None:
-            session_store.hydrate_provider_history(session_id, provider_key, history)
-
         session_store.add_user_message_to_provider(session_id, provider_key, message)
 
         history = session_store.get_history(session_id, provider_key)
+        eff_system_prompt = get_system_prompt(session.system_prompt)
         res = await self._call_single_model(
             provider=provider_key,
             messages=history,
-            system_prompt=session.system_prompt
+            system_prompt=eff_system_prompt
         )
 
         if res.status == "error":
@@ -179,6 +137,7 @@ class LLMOrchestrator:
         updated_history = session_store.get_history(session_id, provider_key)
         return ContinueResponse(
             session_id=session_id,
+            user_id=session.user_id,
             selected_model=selected_model,
             model_name=res.model,
             response=res.response or "",

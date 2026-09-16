@@ -4,10 +4,12 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 from app.schemas.common import ModelProvider, ChatRole, ChatMessage
+from app.models.conversation_memory import conversation_memory
 
 
 class SessionData(BaseModel):
     session_id: str
+    user_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_activity: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     system_prompt: Optional[str] = None
@@ -23,19 +25,26 @@ class SessionData(BaseModel):
 
 class SessionStore:
     """
-    Thread-safe in-memory store maintaining per-session and per-model conversation histories.
+    Thread-safe in-memory store maintaining per-session and per-model conversation histories,
+    system prompt management, and user session indexing.
     """
 
     def __init__(self):
         self._sessions: Dict[str, SessionData] = {}
         self._lock = threading.Lock()
 
-    def get_or_create(self, session_id: Optional[str] = None, system_prompt: Optional[str] = None) -> SessionData:
+    def get_or_create(
+        self,
+        session_id: Optional[str] = None,
+        system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None
+    ) -> SessionData:
         with self._lock:
             if not session_id or session_id not in self._sessions:
                 sid = session_id or str(uuid.uuid4())
                 session = SessionData(
                     session_id=sid,
+                    user_id=user_id,
                     system_prompt=system_prompt,
                     histories={
                         ModelProvider.OPENAI.value: [],
@@ -47,10 +56,26 @@ class SessionStore:
                 return session
 
             session = self._sessions[session_id]
-            if system_prompt and not session.system_prompt:
+            if user_id and not session.user_id:
+                session.user_id = user_id
+            if system_prompt is not None:
                 session.system_prompt = system_prompt
             session.last_activity = datetime.now(timezone.utc)
             return session
+
+    def set_system_prompt(self, session_id: str, system_prompt: Optional[str]) -> None:
+        """Update system prompt for an active session."""
+        with self._lock:
+            session = self._sessions.get(session_id)
+            if session:
+                session.system_prompt = system_prompt
+                session.last_activity = datetime.now(timezone.utc)
+
+    def get_system_prompt(self, session_id: str) -> Optional[str]:
+        """Retrieve the configured system prompt for a session."""
+        with self._lock:
+            session = self._sessions.get(session_id)
+            return session.system_prompt if session else None
 
     def add_user_message_to_all(self, session_id: str, message: str) -> None:
         """Add user message to all models' histories in the session (for /chat)."""
@@ -61,6 +86,8 @@ class SessionStore:
             msg = ChatMessage(role=ChatRole.USER, content=message)
             for provider_key in session.histories:
                 session.histories[provider_key].append(msg)
+                if session.user_id:
+                    conversation_memory.add_user_message(session.user_id, provider_key, message)
             session.last_activity = datetime.now(timezone.utc)
 
     def add_user_message_to_provider(self, session_id: str, provider: str, message: str) -> None:
@@ -73,6 +100,8 @@ class SessionStore:
                 session.histories[provider] = []
             msg = ChatMessage(role=ChatRole.USER, content=message)
             session.histories[provider].append(msg)
+            if session.user_id:
+                conversation_memory.add_user_message(session.user_id, provider, message)
             session.last_activity = datetime.now(timezone.utc)
 
     def add_assistant_response(
@@ -93,6 +122,10 @@ class SessionStore:
                 model_name=model_name,
             )
             session.histories[provider].append(msg)
+            if session.user_id:
+                conversation_memory.add_assistant_message(
+                    session.user_id, provider, content, model_name=model_name
+                )
             session.last_activity = datetime.now(timezone.utc)
             return msg
 
@@ -109,20 +142,10 @@ class SessionStore:
         with self._lock:
             return self._sessions.get(session_id)
 
-    def hydrate_all_histories(self, session_id: str, history: List[ChatMessage]) -> None:
-        """Replace all providers' histories with the provided history."""
+    def get_sessions_by_user(self, user_id: str) -> List[SessionData]:
+        """List all active sessions associated with a specific user_id."""
         with self._lock:
-            session = self._sessions.get(session_id)
-            if session:
-                for provider in session.histories:
-                    session.histories[provider] = list(history)
-
-    def hydrate_provider_history(self, session_id: str, provider: str, history: List[ChatMessage]) -> None:
-        """Replace a specific provider's history with the provided history."""
-        with self._lock:
-            session = self._sessions.get(session_id)
-            if session:
-                session.histories[provider] = list(history)
+            return [s for s in self._sessions.values() if s.user_id == user_id]
 
     def clear_session(self, session_id: str) -> bool:
         with self._lock:

@@ -27,13 +27,18 @@ class GeminiService(BaseLLMService):
         # Build contents using Google GenAI types
         contents = []
         for msg in messages:
+            if msg.role == ChatRole.SYSTEM:
+                # System prompt is passed separately via GenerateContentConfig
+                continue
             role = "user" if msg.role == ChatRole.USER else "model"
-            contents.append(
-                types.Content(
-                    role=role,
-                    parts=[types.Part.from_text(text=msg.content)]
+            text_val = (msg.content or "").strip()
+            if text_val:
+                contents.append(
+                    types.Content(
+                        role=role,
+                        parts=[types.Part.from_text(text=text_val)]
+                    )
                 )
-            )
 
         if not contents:
             contents = [types.Content(role="user", parts=[types.Part.from_text(text="Hello")])]
@@ -42,9 +47,15 @@ class GeminiService(BaseLLMService):
         if system_prompt:
             config = types.GenerateContentConfig(system_instruction=system_prompt)
 
-        response = await self.client.aio.models.generate_content(
-            model=self.model_name,
-            contents=contents,
-            config=config
-        )
-        return response.text or "", False
+        try:
+            response = await self.client.aio.models.generate_content(
+                model=self.model_name,
+                contents=contents,
+                config=config
+            )
+            text = (response.text or "").strip()
+            if not text:
+                raise RuntimeError("Gemini returned an empty response.")
+            return text, False
+        except Exception as exc:
+            raise RuntimeError(f"Gemini request failed: {str(exc)}")

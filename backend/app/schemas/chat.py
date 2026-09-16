@@ -1,6 +1,5 @@
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from pydantic import BaseModel, Field
-from app.schemas.common import ChatMessage
 
 
 class ChatRequest(BaseModel):
@@ -15,14 +14,14 @@ class ChatRequest(BaseModel):
         default=None,
         description="Unique session or conversation ID. Auto-generated if not supplied."
     )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="Optional user identifier from Firebase or client authentication."
+    )
     system_prompt: Optional[str] = Field(
         default=None,
         max_length=2000,
         description="Optional instructions directing the tone or role of all models."
-    )
-    history: Optional[List[ChatMessage]] = Field(
-        default=None,
-        description="Optional conversation history provided by the client to hydrate state."
     )
 
 
@@ -38,6 +37,7 @@ class ModelResponseItem(BaseModel):
 
 class ChatResponse(BaseModel):
     session_id: str = Field(..., description="Active session ID for tracking conversation history")
+    user_id: Optional[str] = Field(default=None, description="Optional user identifier associated with the session")
     user_message: str = Field(..., description="The query sent to all models")
     system_prompt: Optional[str] = Field(default=None, description="Active system prompt, if any")
     responses: Dict[str, ModelResponseItem] = Field(

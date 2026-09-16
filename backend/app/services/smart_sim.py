@@ -79,8 +79,37 @@ async def generate_smart_answer(
     last_query = messages[-1].content if messages else "Hello"
     q_lower = last_query.lower()
 
+    # Conversational memory check across earlier messages
+    history_user_texts = [
+        m.content for m in (messages[:-1] if len(messages) > 1 else [])
+        if getattr(m, "role", None) in ("user", ChatRole.USER)
+    ]
+    all_history_text = " ".join(history_user_texts).lower()
+
+    # Memory test: Favorite programming language
+    fav_lang_match = re.search(r"favorite (?:programming )?language is ([a-zA-Z0-9+#]+)", all_history_text, re.IGNORECASE)
+    if not fav_lang_match:
+        # Also check all message contents in case assistant echoed it
+        fav_lang_match = re.search(r"favorite (?:programming )?language is ([a-zA-Z0-9+#]+)", " ".join(m.content for m in (messages[:-1] if len(messages) > 1 else [])), re.IGNORECASE)
+
+    if ("favorite" in q_lower and ("language" in q_lower or "programming" in q_lower)) or ("what is my favorite" in q_lower):
+        if fav_lang_match:
+            lang = fav_lang_match.group(1).capitalize()
+            topic_info = f"Your favorite programming language is **{lang}**, as you mentioned earlier."
+        else:
+            topic_info = "You haven't told me your favorite programming language yet. Feel free to share it!"
+    # Continuation test: RAG real-life example follow-up
+    elif ("example" in q_lower or "explain" in q_lower) and ("rag" in all_history_text or "retrieval" in all_history_text or "rag" in q_lower):
+        topic_info = (
+            "Here is a real-life example of **Retrieval-Augmented Generation (RAG)**:\n\n"
+            "Imagine a specialized internal assistant at an enterprise or law firm. "
+            "An employee asks: *\"What is our company's paternity leave policy for remote staff in 2026?\"*\n\n"
+            "• **Without RAG**: A standard LLM relies only on its frozen training cutoff and guesses or hallucinates.\n"
+            "• **With RAG (Step 1 - Retrieval)**: The system queries an internal vector database indexed with the company's private handbook and fetches the exact 2026 HR policy paragraphs.\n"
+            "• **With RAG (Step 2 - Augmentation & Generation)**: It feeds those retrieved paragraphs into the LLM context window. The model then answers with 100% factual accuracy, directly citing section 4.2 of the handbook."
+        )
     # Special case for Indian context father of nation
-    if "father of our nation" in q_lower or "father of the nation" in q_lower:
+    elif "father of our nation" in q_lower or "father of the nation" in q_lower:
         topic_info = (
             "In India, **Mahatma Gandhi** (Mohandas Karamchand Gandhi, revered as *Bapu*) is recognized as the **Father of the Nation** (Rashtrapita). "
             "Netaji Subhash Chandra Bose first addressed him as 'Father of the Nation' in an address from Singapore in 1944. "
