@@ -55,8 +55,8 @@ const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isPr
 
 const MultiLLMPanel = ({ isProcessing, responses, onSelectModel }) => {
   const models = [
-    { id: 'openai', name: 'OpenAI', icon: Bot, colorClass: 'border-t-[#10a37f] bg-[#10a37f]', glowClass: 'hover:shadow-[#10a37f]/10' },
-    { id: 'claude', name: 'Claude', icon: Sparkles, colorClass: 'border-t-[#d97757] bg-[#d97757]', glowClass: 'hover:shadow-[#d97757]/10' },
+    { id: 'tokenharbor', name: 'DeepSeek', icon: Bot, colorClass: 'border-t-[#1d4ed8] bg-[#1d4ed8]', glowClass: 'hover:shadow-[#1d4ed8]/10' },
+    { id: 'openrouter', name: 'Nemotron', icon: Sparkles, colorClass: 'border-t-[#76b900] bg-[#76b900]', glowClass: 'hover:shadow-[#76b900]/10' },
     { id: 'gemini', name: 'Gemini', icon: Zap, colorClass: 'border-t-[#8b5cf6] bg-[#8b5cf6]', glowClass: 'hover:shadow-[#8b5cf6]/10' },
   ];
 

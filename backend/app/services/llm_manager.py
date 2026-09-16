@@ -19,15 +19,15 @@ from app.schemas.continue_chat import ContinueResponse
 from app.models.session_store import session_store
 from app.models.conversation_memory import conversation_memory, normalize_model_name
 from app.services.prompt_manager import get_system_prompt
-from app.services.openai_service import OpenAIService
-from app.services.claude_service import ClaudeService
+from app.services.tokenharbor_service import TokenHarborService
+from app.services.openrouter_service import OpenRouterService
 from app.services.gemini_service import GeminiService
 
 import re
 
 SUPPORTED_MODELS = {
-    "openai",
-    "claude",
+    "tokenharbor",
+    "openrouter",
     "gemini"
 }
 
@@ -151,14 +151,14 @@ class LLMManager:
     """
 
     def __init__(self):
-        self.openai_service = OpenAIService(
-            model_name=settings.OPENAI_MODEL,
-            api_key=settings.OPENAI_API_KEY,
+        self.tokenharbor_service = TokenHarborService(
+            model_name=settings.TOKENHARBOR_MODEL,
+            api_key=settings.TOKENHARBOR_API_KEY,
             demo_mode=settings.DEMO_MODE
         )
-        self.claude_service = ClaudeService(
-            model_name=settings.CLAUDE_MODEL,
-            api_key=settings.ANTHROPIC_API_KEY,
+        self.openrouter_service = OpenRouterService(
+            model_name=settings.OPENROUTER_MODEL,
+            api_key=settings.OPENROUTER_API_KEY,
             demo_mode=settings.DEMO_MODE
         )
         self.gemini_service = GeminiService(
@@ -167,8 +167,8 @@ class LLMManager:
             demo_mode=settings.DEMO_MODE
         )
         self.services = {
-            "openai": self.openai_service,
-            "claude": self.claude_service,
+            "tokenharbor": self.tokenharbor_service,
+            "openrouter": self.openrouter_service,
             "gemini": self.gemini_service,
         }
 
@@ -182,15 +182,15 @@ class LLMManager:
         **kwargs
     ) -> LLMResponse:
         """
-        Main interface to query a specific LLM (openai, claude, or gemini).
+        Main interface to query a specific LLM (tokenharbor, openrouter, or gemini).
 
         Logic:
-            ask_model("openai", ...)  → OpenAI service
-            ask_model("claude", ...)  → Claude service
+            ask_model("tokenharbor", ...)  → Token Harbor service
+            ask_model("openrouter", ...)  → OpenRouter service
             ask_model("gemini", ...)  → Gemini service
 
         Args:
-            model (Union[str, ModelProvider]): 'openai', 'claude', or 'gemini'.
+            model (Union[str, ModelProvider]): 'tokenharbor', 'openrouter', or 'gemini'.
             user_id (Optional[str]): Identifier for the active user.
             message (str): The user query.
             system_prompt (Optional[str]): Optional custom system prompt.
@@ -223,7 +223,7 @@ class LLMManager:
         new_user_msg = ChatMessage(
             role=ChatRole.USER,
             content=message,
-            provider=ModelProvider(provider_key) if provider_key in ["openai", "claude", "gemini"] else None
+            provider=ModelProvider(provider_key) if provider_key in ["tokenharbor", "openrouter", "gemini"] else None
         )
         messages_to_send = list(existing_history) + [new_user_msg]
 
@@ -296,7 +296,7 @@ class LLMManager:
         active_user_id = session.user_id or user_id or "anonymous_user"
         eff_system_prompt = get_system_prompt(system_prompt or session.system_prompt)
 
-        providers = ["openai", "claude", "gemini"]
+        providers = ["tokenharbor", "openrouter", "gemini"]
 
         # Concurrently dispatch via ask_model for each model
         tasks = [
@@ -363,13 +363,13 @@ async def ask_model(
     Main interface between FastAPI backend and LLM provider implementations.
 
     Supported models:
-        - openai
-        - claude
+        - tokenharbor
+        - openrouter
         - gemini
 
     Logic:
-        ask_model("openai", ...)  → OpenAI service
-        ask_model("claude", ...)  → Claude service
+        ask_model("tokenharbor", ...)  → Token Harbor service
+        ask_model("openrouter", ...)  → OpenRouter service
         ask_model("gemini", ...)  → Gemini service
     """
     return await llm_manager.ask_model(

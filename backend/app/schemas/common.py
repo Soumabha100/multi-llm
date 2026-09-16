@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 
 class ModelProvider(str, Enum):
-    OPENAI = "openai"
-    CLAUDE = "claude"
+    TOKENHARBOR = "tokenharbor"
+    OPENROUTER = "openrouter"
     GEMINI = "gemini"
 
 

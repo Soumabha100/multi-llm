@@ -6,22 +6,22 @@ from app.schemas.common import ModelProvider, ChatMessage
 from app.schemas.chat import ModelResponseItem, ChatResponse
 from app.schemas.continue_chat import ContinueResponse
 from app.models.session_store import session_store
-from app.services.openai_service import OpenAIService
-from app.services.claude_service import ClaudeService
+from app.services.tokenharbor_service import TokenHarborService
+from app.services.openrouter_service import OpenRouterService
 from app.services.gemini_service import GeminiService
 from app.services.prompt_manager import get_system_prompt
 
 
 class LLMOrchestrator:
     def __init__(self):
-        self.openai_service = OpenAIService(
-            model_name=settings.OPENAI_MODEL,
-            api_key=settings.OPENAI_API_KEY,
+        self.tokenharbor_service = TokenHarborService(
+            model_name=settings.TOKENHARBOR_MODEL,
+            api_key=settings.TOKENHARBOR_API_KEY,
             demo_mode=settings.DEMO_MODE
         )
-        self.claude_service = ClaudeService(
-            model_name=settings.CLAUDE_MODEL,
-            api_key=settings.ANTHROPIC_API_KEY,
+        self.openrouter_service = OpenRouterService(
+            model_name=settings.OPENROUTER_MODEL,
+            api_key=settings.OPENROUTER_API_KEY,
             demo_mode=settings.DEMO_MODE
         )
         self.gemini_service = GeminiService(
@@ -30,8 +30,8 @@ class LLMOrchestrator:
             demo_mode=settings.DEMO_MODE
         )
         self.services = {
-            ModelProvider.OPENAI.value: self.openai_service,
-            ModelProvider.CLAUDE.value: self.claude_service,
+            ModelProvider.TOKENHARBOR.value: self.tokenharbor_service,
+            ModelProvider.OPENROUTER.value: self.openrouter_service,
             ModelProvider.GEMINI.value: self.gemini_service,
         }
 

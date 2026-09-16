@@ -11,8 +11,8 @@ import { getUserSessions, getSessionMessages, addMessageToSession, updateSession
 import { sendContinuePrompt } from '../services/api';
 
 const modelsConfig = {
-  openai: { name: 'OpenAI', icon: Bot, color: '#10a37f', bgClass: 'bg-[#10a37f]', borderClass: 'border-[#10a37f]/30', textClass: 'text-[#10a37f]' },
-  claude: { name: 'Claude', icon: Sparkles, color: '#d97757', bgClass: 'bg-[#d97757]', borderClass: 'border-[#d97757]/30', textClass: 'text-[#d97757]' },
+  tokenharbor: { name: 'DeepSeek', icon: Bot, color: '#1d4ed8', bgClass: 'bg-[#1d4ed8]', borderClass: 'border-[#1d4ed8]/30', textClass: 'text-[#1d4ed8]' },
+  openrouter: { name: 'Nemotron', icon: Sparkles, color: '#76b900', bgClass: 'bg-[#76b900]', borderClass: 'border-[#76b900]/30', textClass: 'text-[#76b900]' },
   gemini: { name: 'Gemini', icon: Zap, color: '#8b5cf6', bgClass: 'bg-[#8b5cf6]', borderClass: 'border-[#8b5cf6]/30', textClass: 'text-[#8b5cf6]' }
 };
 
@@ -50,7 +50,7 @@ const SingleModelChat = () => {
   // Model Switcher State
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
 
-  const activeModelConfig = modelsConfig[modelId] || modelsConfig['openai'];
+  const activeModelConfig = modelsConfig[modelId] || modelsConfig['tokenharbor'];
 
   // Scroll to bottom
   const scrollToBottom = () => {

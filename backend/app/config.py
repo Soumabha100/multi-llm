@@ -17,14 +17,17 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # API Keys for LLM Providers
-    OPENAI_API_KEY: str = Field(default="")
-    ANTHROPIC_API_KEY: str = Field(default="")
+    TOKENHARBOR_API_KEY: str = Field(default="")
+    OPENROUTER_API_KEY: str = Field(default="")
     GEMINI_API_KEY: str = Field(default="")
 
     # Default LLM Models
-    OPENAI_MODEL: str = "gpt-4o-mini"
-    CLAUDE_MODEL: str = "claude-3-5-sonnet-20241022"
+    TOKENHARBOR_MODEL: str = "deepseek-v4.1-flash:free"
+    OPENROUTER_MODEL: str = "nvidia/nemotron-3-ultra-550b-a55b:free"
     GEMINI_MODEL: str = "gemini-1.5-flash"
+    
+    # Custom endpoints
+    TOKENHARBOR_BASE_URL: str = "https://api.tokenharbor.com/v1"
 
     # Simulation / Demo Mode switch
     # When True or when a provider key is missing, smart mock responses are generated
