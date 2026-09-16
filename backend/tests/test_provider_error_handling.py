@@ -2,14 +2,15 @@
 Tests for Sections 17, 18, and 19:
 17. PROVIDER ERROR HANDLING:
     - If OpenAI -> success, Claude -> failure, Gemini -> success,
-      the application still returns: OpenAI -> answer, Claude -> error, Gemini -> answer.
+    - If TokenHarbor -> success, OpenRouter -> failure, Gemini -> success,
+      the application still returns: TokenHarbor -> answer, OpenRouter -> error, Gemini -> answer.
     - One provider failure does NOT crash the complete /chat request.
     - Handles: missing API key, invalid API key, rate limit, timeout, provider unavailable,
       network error, invalid model, empty response.
     - No raw stack traces or secrets exposed.
 
 18. ENVIRONMENT VARIABLES:
-    - OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY.
+    - TOKENHARBOR_API_KEY, OPENROUTER_API_KEY, GEMINI_API_KEY.
     - .env in .gitignore.
 
 19. REQUIREMENTS:
@@ -30,7 +31,7 @@ from app.services.llm_manager import (
 
 def test_section_17_error_classification_all_categories():
     """Verify clean classification and sanitization across all 8 required categories."""
-    provider = "claude"
+    provider = "openrouter"
 
     # 1. Missing API key
     e1 = Exception("No API key provided or key missing.")
@@ -63,8 +64,8 @@ def test_section_17_error_classification_all_categories():
     assert "Network connection error" in msg6
 
     # 7. Invalid model
-    e7 = Exception("404 Model does not exist: claude-nonexistent")
-    msg7 = classify_and_sanitize_error(e7, provider, "claude-nonexistent")
+    e7 = Exception("404 Model does not exist: openrouter-nonexistent")
+    msg7 = classify_and_sanitize_error(e7, provider, "openrouter-nonexistent")
     assert "invalid or unsupported" in msg7
 
     # 8. Empty response
@@ -76,7 +77,7 @@ def test_section_17_error_classification_all_categories():
 def test_section_17_secret_redaction_and_no_stacktrace():
     """Verify secrets (sk-..., AIza...) are redacted and stack traces are suppressed."""
     leak_secret = "Unknown provider failure near sk-ant-api03-abcdef1234567890abcdef1234567890\nTraceback:\n  File foo.py line 40"
-    sanitized = classify_and_sanitize_error(Exception(leak_secret), "claude")
+    sanitized = classify_and_sanitize_error(Exception(leak_secret), "openrouter")
 
     # Raw key must NOT be present
     assert "sk-ant-api03-abcdef" not in sanitized
@@ -90,16 +91,16 @@ def test_section_17_secret_redaction_and_no_stacktrace():
 def test_section_17_fault_isolation_partial_failure(client: TestClient):
     """
     Test Section 17 Requirement:
-    If OpenAI -> success, Claude -> failure, Gemini -> success:
+    If TokenHarbor -> success, OpenRouter -> failure, Gemini -> success:
     /chat must still return 200 with:
-    OpenAI -> answer
-    Claude -> error
+    TokenHarbor -> answer
+    OpenRouter -> error
     Gemini -> answer
     One provider failure must NOT crash the complete /chat request.
     """
     with patch(
-        "app.services.claude_service.ClaudeService.generate_response",
-        side_effect=Exception("Rate limit exceeded for Claude (429)")
+        "app.services.openrouter_service.OpenRouterService.generate_response",
+        side_effect=Exception("Rate limit exceeded for OpenRouter (429)")
     ):
         response = client.post(
             "/chat",
@@ -115,15 +116,15 @@ def test_section_17_fault_isolation_partial_failure(client: TestClient):
         assert "responses" in data
         responses = data["responses"]
 
-        # OpenAI -> success with answer
-        assert responses["openai"]["status"] == "success"
-        assert responses["openai"]["response"] is not None
-        assert len(responses["openai"]["response"]) > 0
+        # TokenHarbor -> success with answer
+        assert responses["tokenharbor"]["status"] == "success"
+        assert responses["tokenharbor"]["response"] is not None
+        assert len(responses["tokenharbor"]["response"]) > 0
 
-        # Claude -> error with clean message
-        assert responses["claude"]["status"] == "error"
-        assert responses["claude"]["error"] is not None
-        assert "Rate limit exceeded" in responses["claude"]["error"]
+        # OpenRouter -> error with clean message
+        assert responses["openrouter"]["status"] == "error"
+        assert responses["openrouter"]["error"] is not None
+        assert "Rate limit exceeded" in responses["openrouter"]["error"]
 
         # Gemini -> success with answer
         assert responses["gemini"]["status"] == "success"
@@ -142,8 +143,8 @@ def test_section_18_env_and_gitignore():
 
     # Verify settings config has keys defined
     from app.config import settings
-    assert hasattr(settings, "OPENAI_API_KEY")
-    assert hasattr(settings, "ANTHROPIC_API_KEY")
+    assert hasattr(settings, "TOKENHARBOR_API_KEY")
+    assert hasattr(settings, "OPENROUTER_API_KEY")
     assert hasattr(settings, "GEMINI_API_KEY")
 
 
@@ -155,5 +156,4 @@ def test_section_19_official_sdks():
         reqs = f.read()
 
     assert "openai>=" in reqs
-    assert "anthropic>=" in reqs
     assert "google-genai>=" in reqs

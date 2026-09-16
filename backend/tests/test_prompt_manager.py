@@ -19,7 +19,7 @@ from app.services.prompt_manager import (
     PromptManager,
     prompt_manager,
 )
-from app.services.openai_service import _format_history_for_openai
+from app.services.tokenharbor_service import _format_history_for_openai
 
 
 def test_centralized_system_prompt_content():

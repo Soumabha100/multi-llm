@@ -1,8 +1,8 @@
 """LLM Services and Orchestrator."""
 
 from app.services.base import BaseLLMService
-from app.services.openai_service import OpenAIService
-from app.services.claude_service import ClaudeService
+from app.services.tokenharbor_service import TokenHarborService
+from app.services.openrouter_service import OpenRouterService
 # pyrefly: ignore [missing-import]
 from app.services.gemini_service import GeminiService
 # pyrefly: ignore [missing-import]
@@ -25,8 +25,8 @@ from app.services.llm_manager import (
 
 __all__ = [
     "BaseLLMService",
-    "OpenAIService",
-    "ClaudeService",
+    "TokenHarborService",
+    "OpenRouterService",
     "GeminiService",
     "orchestrator",
     "LLMOrchestrator",

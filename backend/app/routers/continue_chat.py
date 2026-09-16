@@ -93,7 +93,7 @@ async def get_history_query(
     ),
     provider: Optional[ModelProvider] = Query(
         default=None,
-        description="Optional filter by provider: 'openai', 'claude', or 'gemini'"
+        description="Optional filter by provider: 'tokenharbor', 'openrouter', or 'gemini'"
     ),
     user_id: Optional[str] = Query(
         default=None,
@@ -166,7 +166,7 @@ async def get_session_history_path(
     ),
     provider: Optional[ModelProvider] = Query(
         default=None,
-        description="Optional filter by model provider: 'openai', 'claude', or 'gemini'"
+        description="Optional filter by model provider: 'tokenharbor', 'openrouter', or 'gemini'"
     )
 ):
     session = session_store.get_session(session_id)

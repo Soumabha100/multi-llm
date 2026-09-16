@@ -16,8 +16,8 @@ class SessionData(BaseModel):
     # Independent histories for each provider: openai, claude, gemini
     histories: Dict[str, List[ChatMessage]] = Field(
         default_factory=lambda: {
-            ModelProvider.OPENAI.value: [],
-            ModelProvider.CLAUDE.value: [],
+            ModelProvider.TOKENHARBOR.value: [],
+            ModelProvider.OPENROUTER.value: [],
             ModelProvider.GEMINI.value: []
         }
     )
@@ -47,8 +47,8 @@ class SessionStore:
                     user_id=user_id,
                     system_prompt=system_prompt,
                     histories={
-                        ModelProvider.OPENAI.value: [],
-                        ModelProvider.CLAUDE.value: [],
+                        ModelProvider.TOKENHARBOR.value: [],
+                        ModelProvider.OPENROUTER.value: [],
                         ModelProvider.GEMINI.value: []
                     }
                 )

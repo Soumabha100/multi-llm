@@ -12,7 +12,7 @@ router = APIRouter(tags=["Chat"])
 @router.post(
     "/chat",
     response_model=ChatResponse,
-    summary="Send prompt simultaneously to OpenAI, Claude, and Gemini",
+    summary="Send prompt simultaneously to TokenHarbor, OpenRouter, and Gemini",
     description="Dispatches query concurrently to all 3 LLMs using asyncio.gather. Returns side-by-side responses with fault isolation."
 )
 async def chat_parallel(request: ChatRequest):
@@ -29,13 +29,13 @@ async def chat_parallel(request: ChatRequest):
 
         # Person 2's backend parallel orchestration calling Person 3's ask_model()
         results = await asyncio.gather(
-            ask_model("openai", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
-            ask_model("claude", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
+            ask_model("tokenharbor", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
+            ask_model("openrouter", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
             ask_model("gemini", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
             return_exceptions=True
         )
 
-        providers = ["openai", "claude", "gemini"]
+        providers = ["tokenharbor", "openrouter", "gemini"]
         responses_map: Dict[str, ModelResponseItem] = {}
 
         for provider, res in zip(providers, results):

@@ -13,11 +13,11 @@ router = APIRouter(tags=["Health"])
 )
 async def health_check():
     configured_models = {
-        "openai": settings.OPENAI_MODEL,
-        "claude": settings.CLAUDE_MODEL,
+        "tokenharbor": settings.TOKENHARBOR_MODEL,
+        "openrouter": settings.OPENROUTER_MODEL,
         "gemini": settings.GEMINI_MODEL,
     }
-    available_providers = ["openai", "claude", "gemini"]
+    available_providers = ["tokenharbor", "openrouter", "gemini"]
 
     return HealthResponse(
         status="healthy",
