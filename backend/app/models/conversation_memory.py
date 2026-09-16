@@ -7,13 +7,13 @@ Enforces isolated in-memory conversation histories separated strictly by:
 Conceptual hierarchy:
 user123
 │
-├── openai
+├── tokenharbor
 │     ├── user message
-│     └── OpenAI answer
+│     └── TokenHarbor answer
 │
-├── claude
+├── openrouter
 │     ├── user message
-│     └── Claude answer
+│     └── OpenRouter answer
 │
 └── gemini
       ├── user message
@@ -65,10 +65,10 @@ def normalize_model_name(model: Union[str, ModelProvider]) -> str:
     if isinstance(model, ModelProvider):
         return model.value
     m = str(model).lower().strip()
-    if "openai" in m or "gpt" in m:
-        return "openai"
-    elif "claude" in m or "anthropic" in m:
-        return "claude"
+    if "tokenharbor" in m or "deepseek" in m:
+        return "tokenharbor"
+    elif "openrouter" in m or "nemotron" in m:
+        return "openrouter"
     elif "gemini" in m or "google" in m:
         return "gemini"
     return m
@@ -82,8 +82,8 @@ class ConversationMemory:
     Structure:
     {
         "<user_id>": {
-            "openai": [ChatMessage, ...],
-            "claude": [ChatMessage, ...],
+            "tokenharbor": [ChatMessage, ...],
+            "openrouter": [ChatMessage, ...],
             "gemini": [ChatMessage, ...]
         }
     }
@@ -98,8 +98,8 @@ class ConversationMemory:
         """Helper to initialize nested storage if not present (must be called inside lock)."""
         if user_id not in self._memory:
             self._memory[user_id] = {
-                "openai": [],
-                "claude": [],
+                "tokenharbor": [],
+                "openrouter": [],
                 "gemini": [],
             }
         if model_key not in self._memory[user_id]:
@@ -118,7 +118,7 @@ class ConversationMemory:
 
         Args:
             user_id (str): Unique user identifier.
-            model (Union[str, ModelProvider]): Target model (e.g. 'openai', 'claude', 'gemini').
+            model (Union[str, ModelProvider]): Target model (e.g. 'tokenharbor', 'openrouter', 'gemini').
             role (Union[str, ChatRole]): Role ('user', 'assistant', 'system' or ChatRole enum).
             content (str): Message text.
             model_name (Optional[str]): Specific model variant name (e.g. 'gpt-4o-mini').
@@ -139,7 +139,7 @@ class ConversationMemory:
             msg = ChatMessage(
                 role=resolved_role,
                 content=content,
-                provider=ModelProvider(model_key) if model_key in ["openai", "claude", "gemini"] else None,
+                provider=ModelProvider(model_key) if model_key in ["tokenharbor", "openrouter", "gemini"] else None,
                 model_name=model_name or model_key
             )
             self._memory[user_id][model_key].append(msg)
@@ -235,7 +235,7 @@ class ConversationMemory:
 
         Args:
             user_id (str): Unique user identifier.
-            model (Union[str, ModelProvider]): Target model ('openai', 'claude', 'gemini').
+            model (Union[str, ModelProvider]): Target model ('tokenharbor', 'openrouter', 'gemini').
 
         Returns:
             List[ChatMessage]: Message history list for the specified model.
@@ -279,7 +279,7 @@ class ConversationMemory:
             user_id (str): Unique user identifier.
 
         Returns:
-            List[str]: List of model keys (e.g. ['openai', 'claude', 'gemini']).
+            List[str]: List of model keys (e.g. ['tokenharbor', 'openrouter', 'gemini']).
         """
         with self._lock:
             if user_id not in self._memory:
@@ -290,8 +290,8 @@ class ConversationMemory:
         """
         Returns a dictionary of all isolated model histories for a user:
         {
-            "openai": [...],
-            "claude": [...],
+            "tokenharbor": [...],
+            "openrouter": [...],
             "gemini": [...]
         }
 
@@ -303,7 +303,7 @@ class ConversationMemory:
         """
         with self._lock:
             if user_id not in self._memory:
-                return {"openai": [], "claude": [], "gemini": []}
+                return {"tokenharbor": [], "openrouter": [], "gemini": []}
             return {
                 m: list(msgs) for m, msgs in self._memory[user_id].items()
             }
@@ -330,8 +330,8 @@ class ConversationMemory:
                     self._memory[user_id][model_key] = []
             else:
                 self._memory[user_id] = {
-                    "openai": [],
-                    "claude": [],
+                    "tokenharbor": [],
+                    "openrouter": [],
                     "gemini": []
                 }
 
@@ -411,7 +411,7 @@ def get_history(
 
     Args:
         user_id (str): Unique user identifier.
-        model (Union[str, ModelProvider]): Target model ('openai', 'claude', 'gemini').
+        model (Union[str, ModelProvider]): Target model ('tokenharbor', 'openrouter', 'gemini').
 
     Returns:
         List[ChatMessage]: Message history list for that specific model.
@@ -431,7 +431,7 @@ def add_message(
 
     Args:
         user_id (str): Unique user identifier.
-        model (Union[str, ModelProvider]): Target model ('openai', 'claude', 'gemini').
+        model (Union[str, ModelProvider]): Target model ('tokenharbor', 'openrouter', 'gemini').
         role (Union[str, ChatRole]): Message role ('user', 'assistant', 'system').
         content (str): Message text.
         model_name (Optional[str]): Specific model variant name.
