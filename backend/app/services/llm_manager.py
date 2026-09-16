@@ -300,12 +300,15 @@ class LLMManager:
 
         # Concurrently dispatch via ask_model for each model
         tasks = [
-            self.ask_model(
-                model=p,
-                user_id=active_user_id,
-                message=message,
-                system_prompt=eff_system_prompt,
-                session_id=active_session_id
+            asyncio.wait_for(
+                self.ask_model(
+                    model=p,
+                    user_id=active_user_id,
+                    message=message,
+                    system_prompt=eff_system_prompt,
+                    session_id=active_session_id
+                ),
+                timeout=15.0
             )
             for p in providers
         ]
@@ -316,12 +319,19 @@ class LLMManager:
         for provider, res in zip(providers, results):
             if isinstance(res, Exception):
                 service = self.services.get(provider)
+                
+                err_msg = str(res)
+                if isinstance(res, asyncio.TimeoutError):
+                    err_msg = f"{provider.capitalize()} timed out after 15 seconds."
+                elif not err_msg:
+                    err_msg = f"Unknown error occurred with {provider}."
+                    
                 responses_map[provider] = ModelResponseItem(
                     status="error",
                     provider=provider,
                     model=service.model_name if service else "unknown",
-                    error=str(res),
-                    latency_ms=0.0
+                    error=err_msg,
+                    latency_ms=15000.0 if isinstance(res, asyncio.TimeoutError) else 0.0
                 )
             elif isinstance(res, LLMResponse):
                 responses_map[provider] = res.to_model_response_item()

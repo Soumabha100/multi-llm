@@ -29,9 +29,9 @@ async def chat_parallel(request: ChatRequest):
 
         # Person 2's backend parallel orchestration calling Person 3's ask_model()
         results = await asyncio.gather(
-            ask_model("tokenharbor", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
-            ask_model("openrouter", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
-            ask_model("gemini", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id),
+            asyncio.wait_for(ask_model("tokenharbor", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id), timeout=90.0),
+            asyncio.wait_for(ask_model("openrouter", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id), timeout=90.0),
+            asyncio.wait_for(ask_model("gemini", user_id, message, system_prompt=eff_system_prompt, session_id=active_session_id), timeout=90.0),
             return_exceptions=True
         )
 
@@ -40,12 +40,18 @@ async def chat_parallel(request: ChatRequest):
 
         for provider, res in zip(providers, results):
             if isinstance(res, Exception):
+                err_msg = str(res)
+                if isinstance(res, asyncio.TimeoutError):
+                    err_msg = f"{provider.capitalize()} request timed out after 90 seconds."
+                elif not err_msg:
+                    err_msg = f"Unknown error with {provider}."
+                    
                 responses_map[provider] = ModelResponseItem(
                     status="error",
                     provider=provider,
                     model="unknown",
-                    error=str(res),
-                    latency_ms=0.0
+                    error=err_msg,
+                    latency_ms=90000.0 if isinstance(res, asyncio.TimeoutError) else 0.0
                 )
             elif isinstance(res, LLMResponse):
                 responses_map[provider] = res.to_model_response_item()

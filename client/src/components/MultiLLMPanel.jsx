@@ -14,7 +14,16 @@ const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isPr
         <div className={`p-2.5 rounded-xl text-white shadow-sm ${colorClass.replace('border-t-', 'bg-')}`}>
           <Icon className="w-5 h-5" />
         </div>
-        <h3 className="font-bold text-lg">{name}</h3>
+        <div className="flex flex-col">
+          <h3 className="font-bold text-lg leading-tight">{name}</h3>
+          {response?.model && response.model !== "unknown" && (
+            <div className="flex items-center mt-1">
+              <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                {response.model}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="p-6 flex-1 overflow-y-auto scrollbar-thin">
@@ -55,9 +64,9 @@ const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isPr
 
 const MultiLLMPanel = ({ isProcessing, responses, onSelectModel }) => {
   const models = [
-    { id: 'tokenharbor', name: 'DeepSeek', icon: Bot, colorClass: 'border-t-[#1d4ed8] bg-[#1d4ed8]', glowClass: 'hover:shadow-[#1d4ed8]/10' },
-    { id: 'openrouter', name: 'Nemotron', icon: Sparkles, colorClass: 'border-t-[#76b900] bg-[#76b900]', glowClass: 'hover:shadow-[#76b900]/10' },
-    { id: 'gemini', name: 'Gemini', icon: Zap, colorClass: 'border-t-[#8b5cf6] bg-[#8b5cf6]', glowClass: 'hover:shadow-[#8b5cf6]/10' },
+    { id: 'tokenharbor', name: 'Claude 3', icon: Bot, colorClass: 'border-t-[#1d4ed8] bg-[#1d4ed8]', glowClass: 'hover:shadow-[#1d4ed8]/10' },
+    { id: 'openrouter', name: 'GPT-3.5', icon: Sparkles, colorClass: 'border-t-[#10a37f] bg-[#10a37f]', glowClass: 'hover:shadow-[#10a37f]/10' },
+    { id: 'gemini', name: 'Gemini 3.6', icon: Zap, colorClass: 'border-t-[#8b5cf6] bg-[#8b5cf6]', glowClass: 'hover:shadow-[#8b5cf6]/10' },
   ];
 
   return (

@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Path, Query, status
 from app.schemas.continue_chat import ContinueRequest, ContinueResponse
@@ -43,13 +44,22 @@ async def continue_conversation(request: ContinueRequest):
         eff_system_prompt = get_system_prompt(session.system_prompt)
 
         # Call ask_model specifically for the selected model ONLY (no other providers called)
-        res = await ask_model(
-            norm_model,
-            user_id,
-            request.message,
-            system_prompt=eff_system_prompt,
-            session_id=request.session_id
-        )
+        try:
+            res = await asyncio.wait_for(
+                ask_model(
+                    norm_model,
+                    user_id,
+                    request.message,
+                    system_prompt=eff_system_prompt,
+                    session_id=request.session_id
+                ),
+                timeout=90.0
+            )
+        except asyncio.TimeoutError:
+            raise HTTPException(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                detail=f"{model_str.capitalize()} request timed out after 90 seconds."
+            )
 
         if res.status == "error":
             raise HTTPException(
