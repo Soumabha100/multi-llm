@@ -143,7 +143,7 @@ const Navbar = ({ isChat = false }) => {
   return (
     <>
       <header className={`sticky top-0 z-40 w-full h-[72px] transition-colors duration-300 ${isChat ? 'glass-panel border-x-0 border-t-0 rounded-none shadow-sm' : 'bg-[var(--bg-primary)]/80 backdrop-blur-md border-b border-[var(--border-color)]'}`}>
-        <div className="max-w-7xl mx-auto h-full px-4 md:px-6 flex items-center justify-between">
+        <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           
           {/* Left: Logo */}
           <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">

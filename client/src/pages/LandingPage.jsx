@@ -37,7 +37,7 @@ const LandingPage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-5xl md:text-7xl font-outfit font-bold tracking-tight mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-outfit font-bold tracking-tight mb-6 leading-tight">
                 One prompt. <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
                   Multiple AI minds.
@@ -67,7 +67,7 @@ const LandingPage = () => {
             {/* Abstract UI Mockup */}
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass-panel bg-gradient-to-br from-[var(--glass-bg)] to-transparent">
               {/* Fake OpenAI Card */}
-              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm h-64 flex flex-col">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm h-48 md:h-56 lg:h-64 flex flex-col">
                 <div className="flex items-center gap-2 mb-4 text-[#10a37f]">
                   <Bot className="w-5 h-5" />
                   <span className="font-bold text-sm">OpenAI</span>
@@ -83,7 +83,7 @@ const LandingPage = () => {
               </div>
               
               {/* Fake Claude Card */}
-              <div className="bg-[var(--bg-primary)] rounded-xl border border-blue-500/50 p-4 shadow-md h-64 flex flex-col scale-105 z-10 ring-2 ring-blue-500/20">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-blue-500/50 p-4 shadow-md h-48 md:h-56 lg:h-64 flex flex-col scale-105 z-10 ring-2 ring-blue-500/20">
                 <div className="flex items-center gap-2 mb-4 text-[#d97757]">
                   <Sparkles className="w-5 h-5" />
                   <span className="font-bold text-sm">Claude</span>
@@ -100,7 +100,7 @@ const LandingPage = () => {
               </div>
 
               {/* Fake Gemini Card */}
-              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm h-64 flex flex-col hidden md:flex">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm h-48 md:h-56 lg:h-64 flex flex-col hidden md:flex">
                 <div className="flex items-center gap-2 mb-4 text-[#8b5cf6]">
                   <Zap className="w-5 h-5" />
                   <span className="font-bold text-sm">Gemini</span>

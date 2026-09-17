@@ -9,6 +9,7 @@ import { Bot, Sparkles, Zap, Menu, Loader2, ChevronDown, Check } from 'lucide-re
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUserSessions, getSessionMessages, addMessageToSession, updateSession, deleteSession } from '../services/chatService';
 import { sendContinuePrompt } from '../services/api';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 const modelsConfig = {
   tokenharbor: { name: 'Claude 3', icon: Bot, color: '#1d4ed8', bgClass: 'bg-[#1d4ed8]', borderClass: 'border-[#1d4ed8]/30', textClass: 'text-[#1d4ed8]' },
@@ -185,7 +186,7 @@ const SingleModelChat = () => {
   const ActiveIcon = activeModelConfig.icon;
 
   return (
-    <div className="min-h-screen flex bg-[var(--bg-primary)] overflow-hidden">
+    <div className="h-[100dvh] flex bg-[var(--bg-primary)] overflow-hidden">
       <Sidebar 
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
@@ -272,8 +273,8 @@ const SingleModelChat = () => {
         </header>
 
         {/* CHAT AREA */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-32 scrollbar-thin">
-          <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin">
+          <div className="max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-8 pb-4">
             {isActiveSessionLoading ? (
               <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
                 <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
@@ -301,7 +302,7 @@ const SingleModelChat = () => {
                         </div>
                       )}
                       
-                      <div className={`max-w-3xl p-5 rounded-3xl relative shadow-sm ${
+                      <div className={`max-w-[90%] md:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl p-4 md:p-5 rounded-3xl relative shadow-sm ${
                         isUser 
                           ? 'bg-blue-600 text-white rounded-tr-sm shadow-blue-500/20' 
                           : `bg-[var(--glass-bg)] border border-[var(--border-color)] rounded-tl-sm backdrop-blur-md`
@@ -311,9 +312,7 @@ const SingleModelChat = () => {
                             <span className={msgModelConfig.textClass}>{msgModelConfig.name}</span>
                           </div>
                         )}
-                        <p className={`whitespace-pre-wrap leading-relaxed ${!isUser && 'text-[var(--text-primary)]'}`}>
-                          {msg.content}
-                        </p>
+                        <MarkdownRenderer content={msg.content} isUser={isUser} />
                       </div>
                     </motion.div>
                   );
@@ -330,7 +329,7 @@ const SingleModelChat = () => {
                         <ActiveIcon className="w-5 h-5" />
                       </div>
                     </div>
-                    <div className="max-w-3xl p-5 rounded-3xl rounded-tl-sm bg-[var(--glass-bg)] border border-[var(--border-color)] backdrop-blur-md shadow-sm">
+                    <div className="max-w-[90%] md:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl p-4 md:p-5 rounded-3xl rounded-tl-sm bg-[var(--glass-bg)] border border-[var(--border-color)] backdrop-blur-md shadow-sm">
                       <div className="flex space-x-2 items-center h-6">
                         <div className={`w-2 h-2 rounded-full ${activeModelConfig.bgClass} animate-bounce`} style={{ animationDelay: '0ms' }}></div>
                         <div className={`w-2 h-2 rounded-full ${activeModelConfig.bgClass} animate-bounce`} style={{ animationDelay: '150ms' }}></div>
@@ -346,8 +345,8 @@ const SingleModelChat = () => {
         </div>
 
         {/* INPUT AREA */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)] to-transparent pt-12 pointer-events-none z-20">
-          <div className="max-w-3xl mx-auto pointer-events-auto">
+        <div className="p-4 bg-[var(--bg-primary)] border-t border-[var(--border-color)] flex-shrink-0 z-20">
+          <div className="max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
             <ChatInput 
               onSend={handleSendPrompt} 
               disabled={isProcessing || isActiveSessionLoading} 

@@ -77,7 +77,7 @@ const MultiLLMPanel = ({ isProcessing, responses, onSelectModel }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: idx * 0.1 }}
-          className="h-[500px]"
+          className="h-[65vh] min-h-[380px] max-h-[600px] xl:max-h-[800px] w-full"
         >
           <ModelCard
             id={model.id}

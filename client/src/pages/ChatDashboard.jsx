@@ -9,6 +9,7 @@ import { MessageSquare, Menu, Loader2, LogOut } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import ChatInput from '../components/ChatInput';
 import MultiLLMPanel from '../components/MultiLLMPanel';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { sendInitialPrompt, sendContinuePrompt } from '../services/api';
 import { createSession, getUserSessions, getSessionMessages, addMessageToSession, updateSession, deleteSession } from '../services/chatService';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -251,7 +252,7 @@ const ChatDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[var(--bg-primary)] overflow-hidden">
+    <div className="h-[100dvh] flex bg-[var(--bg-primary)] overflow-hidden">
       
       <Sidebar 
         sidebarOpen={sidebarOpen}
@@ -286,8 +287,8 @@ const ChatDashboard = () => {
         </header>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-32">
-          <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin">
+          <div className="max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-6 pb-4">
             
             {isActiveSessionLoading ? (
               <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
@@ -321,7 +322,7 @@ const ChatDashboard = () => {
                 {/* Render Conversation History */}
                 {history.map((msg, idx) => (
                   <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-3xl p-4 rounded-2xl ${
+                    <div className={`max-w-[90%] md:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl p-4 md:p-5 rounded-2xl ${
                       msg.role === 'user' 
                         ? 'bg-blue-600 text-white rounded-tr-sm' 
                         : 'bg-[var(--glass-bg)] border border-[var(--glass-border)] shadow-sm rounded-tl-sm backdrop-blur-md'
@@ -331,7 +332,7 @@ const ChatDashboard = () => {
                           {msg.model}
                         </div>
                       )}
-                      <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                      <MarkdownRenderer content={msg.content} isUser={msg.role === 'user'} />
                     </div>
                   </div>
                 ))}
@@ -350,8 +351,8 @@ const ChatDashboard = () => {
         </div>
 
         {/* Input Area */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)] to-transparent pt-12 pointer-events-none z-20">
-          <div className="max-w-3xl mx-auto pointer-events-auto">
+        <div className="p-4 bg-[var(--bg-primary)] border-t border-[var(--border-color)] flex-shrink-0 z-20">
+          <div className="max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
             <ChatInput 
               onSend={handleSendPrompt} 
               disabled={isProcessing || isActiveSessionLoading} 
