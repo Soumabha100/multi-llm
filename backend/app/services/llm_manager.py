@@ -229,7 +229,7 @@ class LLMManager:
 
         start_time = time.perf_counter()
         try:
-            response_text, is_simulated = await service.generate_response(
+            response_text, is_simulated, actual_model_used = await service.generate_response(
                 messages=messages_to_send,
                 system_prompt=eff_system_prompt
             )
@@ -243,7 +243,7 @@ class LLMManager:
                     session_store.add_assistant_response(
                         session_id=session_id,
                         provider=provider_key,
-                        model_name=service.model_name,
+                        model_name=actual_model_used,
                         content=response_text
                     )
             else:
@@ -253,13 +253,13 @@ class LLMManager:
                     user_id=active_user_id,
                     model=provider_key,
                     response=response_text,
-                    model_name=service.model_name
+                    model_name=actual_model_used
                 )
 
             return LLMResponse(
                 status="success",
                 provider=provider_key,
-                model=service.model_name,
+                model=actual_model_used,
                 response=response_text,
                 latency_ms=elapsed_ms,
                 is_simulated=is_simulated

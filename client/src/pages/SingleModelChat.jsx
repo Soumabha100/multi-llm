@@ -121,7 +121,8 @@ const SingleModelChat = () => {
       
       const response = await sendContinuePrompt(newPrompt, modelId, history, sessionId);
       
-      const modelMessage = { role: 'model', content: response.response, model: modelId };
+      const actualModelName = response.model_name || modelId;
+      const modelMessage = { role: 'model', content: response.response, model: actualModelName };
       await addMessageToSession(sessionId, modelMessage);
       
       setHistory(prev => [...prev, modelMessage]);
@@ -226,7 +227,14 @@ const SingleModelChat = () => {
                   <div className={`p-1 rounded-md ${activeModelConfig.bgClass} text-white`}>
                     <ActiveIcon className="w-4 h-4" />
                   </div>
-                  <span className={`font-medium ${activeModelConfig.textClass}`}>{activeModelConfig.name}</span>
+                  <span className={`font-medium ${activeModelConfig.textClass}`}>
+                    {(() => {
+                      const lastModelMsg = [...history].reverse().find(m => m.role === 'model');
+                      return (lastModelMsg && lastModelMsg.model !== modelId && lastModelMsg.model !== "unknown") 
+                        ? lastModelMsg.model 
+                        : activeModelConfig.name;
+                    })()}
+                  </span>
                   <ChevronDown className="w-4 h-4 text-[var(--text-secondary)]" />
                 </button>
 

@@ -322,10 +322,10 @@ const ChatDashboard = () => {
                 {/* Render Conversation History */}
                 {history.map((msg, idx) => (
                   <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[90%] md:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl p-4 md:p-5 rounded-2xl ${
+                    <div className={`max-w-[90%] md:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl p-4 md:p-5 relative shadow-sm ${
                       msg.role === 'user' 
-                        ? 'bg-blue-600 text-white rounded-tr-sm' 
-                        : 'bg-[var(--glass-bg)] border border-[var(--glass-border)] shadow-sm rounded-tl-sm backdrop-blur-md'
+                        ? 'bg-blue-600 text-white rounded-3xl rounded-tr-sm shadow-blue-500/20' 
+                        : 'bg-[var(--glass-bg)] border border-[var(--border-color)] rounded-3xl rounded-tl-sm backdrop-blur-md'
                     }`}>
                       {msg.role === 'model' && msg.model && (
                         <div className="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">

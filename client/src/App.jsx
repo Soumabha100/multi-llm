@@ -6,6 +6,8 @@ import RegisterPage from './pages/RegisterPage';
 import ChatDashboard from './pages/ChatDashboard';
 import SingleModelChat from './pages/SingleModelChat';
 import NotFoundPage from './pages/NotFoundPage';
+import FeaturesPage from './pages/FeaturesPage';
+import GitHubPage from './pages/GitHubPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -15,6 +17,9 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/github" element={<GitHubPage />} />
+
       {/* Protected Routes */}
       <Route 
         path="/chat" 

@@ -5,7 +5,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useToast } from '../contexts/ToastContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, LogOut, Menu, X, User, Code } from 'lucide-react';
+import { Sun, Moon, LogOut, Menu, X, User, Code, Terminal } from 'lucide-react';
+import { GithubIcon } from '../pages/GitHubPage';
 
 const Navbar = ({ isChat = false }) => {
   const { currentUser, loading, logout } = useAuth();
@@ -20,7 +21,7 @@ const Navbar = ({ isChat = false }) => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Features', path: '/#features' },
+    { name: 'Features', path: '/features' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -164,9 +165,10 @@ const Navbar = ({ isChat = false }) => {
                   {link.name}
                 </Link>
               ))}
-              <a href="#" className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md px-2 py-1">
-                <Code className="w-4 h-4" /> GitHub
-              </a>
+              <Link to="/github" className={`text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md px-2 py-1 flex items-center gap-2 ${isActive('/github') ? 'text-blue-600 dark:text-blue-400' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                <GithubIcon className="w-4 h-4" />
+                <span>GitHub</span>
+              </Link>
             </nav>
           )}
 
@@ -240,9 +242,10 @@ const Navbar = ({ isChat = false }) => {
                       {link.name}
                     </Link>
                   ))}
-                  <a href="#" className="text-lg font-medium text-[var(--text-primary)] flex items-center gap-2">
-                    <Code className="w-5 h-5" /> GitHub
-                  </a>
+                  <Link to="/github" onClick={() => setMobileMenuOpen(false)} className={`text-lg font-medium flex items-center gap-2 ${isActive('/github') ? 'text-blue-600' : 'text-[var(--text-primary)]'}`}>
+                    <GithubIcon className="w-5 h-5" />
+                    <span>GitHub</span>
+                  </Link>
                 </nav>
               )}
 

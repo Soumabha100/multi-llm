@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    --bg-primary: #f8fafc;
+    --bg-primary: #fafafa;
     --bg-secondary: #ffffff;
     --text-primary: #0f172a;
-    --text-secondary: #475569;
+    --text-secondary: #64748b;
     --border-color: #e2e8f0;
     
     /* Accents */
@@ -15,8 +15,8 @@
     --accent-claude: #d97757;
     --accent-gemini: #8b5cf6;
     
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(226, 232, 240, 0.5);
   }
 
   .dark {
@@ -38,6 +38,30 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', sans-serif;
   }
+
+  /* Global Scrollbar Styles */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 20px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-secondary);
+  }
 }
 
 @layer utilities {
@@ -46,7 +70,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
     border-radius: 1rem;
   }
   

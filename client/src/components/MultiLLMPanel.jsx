@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Bot, Sparkles, Zap, ArrowRight } from 'lucide-react';
+import MarkdownRenderer from './MarkdownRenderer';
 
 const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isProcessing, onSelect }) => {
   return (
@@ -10,29 +11,35 @@ const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isPr
       transition={{ duration: 0.5 }}
       className={`glass-panel flex flex-col h-full overflow-hidden rounded-2xl border-t-[3px] shadow-lg transition-all duration-300 hover:shadow-xl ${colorClass} ${glowClass}`}
     >
-      <div className="p-5 border-b border-[var(--border-color)] flex items-center gap-4 bg-[var(--bg-secondary)]/50">
-        <div className={`p-2.5 rounded-xl text-white shadow-sm ${colorClass.replace('border-t-', 'bg-')}`}>
-          <Icon className="w-5 h-5" />
+      <div className="p-5 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-secondary)]/50">
+        <div className="flex items-center gap-4">
+          <div className={`p-2.5 rounded-xl text-white shadow-sm ${colorClass.replace('border-t-', 'bg-')}`}>
+            <Icon className="w-5 h-5" />
+          </div>
+          <div className="flex flex-col">
+            <h3 className="font-bold text-base leading-tight">
+              {response?.model && response.model !== "unknown" ? response.model : name}
+            </h3>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <h3 className="font-bold text-lg leading-tight">{name}</h3>
-          {response?.model && response.model !== "unknown" && (
-            <div className="flex items-center mt-1">
-              <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                {response.model}
-              </span>
-            </div>
-          )}
-        </div>
+        {response?.model && response.model !== "unknown" && (
+          <div className="flex items-center">
+            <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 shadow-inner">
+              Active
+            </span>
+          </div>
+        )}
       </div>
       
       <div className="p-6 flex-1 overflow-y-auto scrollbar-thin">
         {isProcessing && !response ? (
-          <div className="space-y-4">
-            <div className="h-4 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-md w-3/4"></div>
-            <div className="h-4 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-md w-full"></div>
-            <div className="h-4 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-md w-5/6"></div>
-            <div className="h-4 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-md w-1/2"></div>
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2 mb-4 text-xs font-mono text-blue-500">
+              <span className="animate-pulse">●</span> Fetching inference...
+            </div>
+            <div className="h-3 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-full w-3/4"></div>
+            <div className="h-3 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-full w-full"></div>
+            <div className="h-3 bg-gradient-to-r from-gray-200 via-white to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] rounded-full w-5/6"></div>
           </div>
         ) : (
           <div className="prose dark:prose-invert max-w-none text-[var(--text-secondary)] text-sm leading-relaxed">
@@ -40,14 +47,16 @@ const ModelCard = ({ id, name, icon: Icon, colorClass, glowClass, response, isPr
               <div className="text-red-500 dark:text-red-400 font-medium">
                 {response.error || "An error occurred."}
               </div>
+            ) : response?.response ? (
+              <MarkdownRenderer content={response.response} isUser={false} />
             ) : (
-              response?.response || "Waiting for response..."
+              "Waiting for response..."
             )}
           </div>
         )}
       </div>
 
-      <div className="p-5 bg-[var(--bg-secondary)]/30 border-t border-[var(--border-color)] mt-auto">
+      <div className="p-5 bg-[var(--bg-secondary)]/30 border-t border-[var(--border-color)] mt-auto backdrop-blur-md">
         <button
           onClick={() => onSelect(id, response?.response)}
           disabled={!response || isProcessing}
@@ -77,7 +86,7 @@ const MultiLLMPanel = ({ isProcessing, responses, onSelectModel }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: idx * 0.1 }}
-          className="h-[65vh] min-h-[380px] max-h-[600px] xl:max-h-[800px] w-full"
+          className="h-[50vh] lg:h-[65vh] min-h-[350px] lg:min-h-[380px] max-h-[600px] xl:max-h-[800px] w-full"
         >
           <ModelCard
             id={model.id}

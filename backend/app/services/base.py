@@ -21,10 +21,10 @@ class BaseLLMService(ABC):
         self,
         messages: List[ChatMessage],
         system_prompt: Optional[str] = None
-    ) -> Tuple[str, bool]:
+    ) -> Tuple[str, bool, str]:
         """
         Generate response from the model.
         Returns:
-            Tuple[str, bool]: (response_text, is_simulated)
+            Tuple[str, bool, str]: (response_text, is_simulated, actual_model_used)
         """
         pass

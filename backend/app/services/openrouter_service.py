@@ -168,24 +168,41 @@ class OpenRouterService(BaseLLMService):
         self,
         messages: List[ChatMessage],
         system_prompt: Optional[str] = None
-    ) -> Tuple[str, bool]:
+    ) -> Tuple[str, bool, str]:
         if not messages:
-            return "", False
+            return "", False, self.model_name
 
         last_msg = messages[-1]
         user_query = last_msg.content if last_msg.role == ChatRole.USER else ""
         history_msgs = messages[:-1] if user_query else messages
 
-        result = await ask(
-            message=user_query or "Hello",
-            history=history_msgs,
-            system_prompt=system_prompt,
-            model=self.model_name,
-            api_key=self.api_key
-        )
+        # Define fallback models explicitly prioritizing the user's primary model
+        fallback_models = [self.model_name]
+        default_fallbacks = [
+            "openai/gpt-3.5-turbo",
+            "anthropic/claude-3-haiku"
+        ]
+        
+        for m in default_fallbacks:
+            if m not in fallback_models:
+                fallback_models.append(m)
 
-        if result["status"] == "error":
-            raise RuntimeError(result.get("error", "OpenRouter request failed"))
+        last_error_msg = None
+        for current_model in fallback_models:
+            result = await ask(
+                message=user_query or "Hello",
+                history=history_msgs,
+                system_prompt=system_prompt,
+                model=current_model,
+                api_key=self.api_key
+            )
 
-        is_simulated = not self.has_api_key
-        return result.get("answer") or "", is_simulated
+            if result["status"] == "success":
+                is_simulated = not self.has_api_key
+                return result.get("answer") or "", is_simulated, current_model
+            else:
+                last_error_msg = result.get("error", "OpenRouter request failed")
+                print(f"[OpenRouterService] Model {current_model} failed: {last_error_msg}")
+                continue
+
+        raise RuntimeError(f"OpenRouter request failed after trying all fallback models. Last error: {last_error_msg}")

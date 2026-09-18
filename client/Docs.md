@@ -26,13 +26,15 @@ User authentication is managed entirely by Firebase.
 
 ## 🧭 Routing Structure
 
-React Router (`react-router-dom`) is utilized for client-side navigation. The main routes are defined in `App.jsx`:
+React Router (`react-router-dom`) is utilized for client-side navigation. The main routes and pages defined in `App.jsx`:
 
-1. **`/` (LandingPage)**: A public marketing page showcasing the platform's capabilities.
-2. **`/login` & `/register`**: Public routes for Firebase authentication.
-3. **`/chat` (ChatDashboard)**: *Protected.* The primary workspace where a user inputs their *initial prompt*. This page handles the **parallel execution** of querying multiple LLMs at once.
-4. **`/chat/:sessionId`**: *Protected.* Views an existing chat session. If a model hasn't been chosen yet, it shows the side-by-side comparison.
-5. **`/chat/:sessionId/model/:modelId` (SingleModelChat)**: *Protected.* The dedicated chat interface used *after* a user selects a specific model to continue their conversation with. 
+1. **`/` (`LandingPage.jsx`)**: The public-facing entry point. Features a premium design with dynamic framer-motion animations on the mock AI agent cards (scaling and glowing on hover).
+2. **`/features` (`FeaturesPage.jsx`)**: A dedicated public page showcasing the technical capabilities of the application in a beautiful grid layout.
+3. **`/github` (`GitHubPage.jsx`)**: An Open Source Collaboration Hub page detailing how to contribute and set up the project locally.
+4. **`/login` & `/register` (`LoginPage.jsx` & `RegisterPage.jsx`)**: User authentication interfaces linked to Firebase.
+5. **`/chat` (`ChatDashboard.jsx`)**: *Protected.* The primary workspace where a user inputs their *initial prompt*. This page handles the **parallel execution** of querying multiple LLMs at once, using `MultiLLMPanel.jsx` to render the three AI models side-by-side.
+6. **`/chat/:sessionId`**: *Protected.* Views an existing chat session. If a model hasn't been chosen yet, it shows the side-by-side comparison.
+7. **`/chat/:sessionId/model/:modelId` (`SingleModelChat.jsx`)**: *Protected.* A focused chat interface dedicated to a specific model, used *after* a user selects a specific model to continue their conversation with. Includes a model switcher dropdown in the header for seamless pivoting.
 
 ---
 
@@ -60,8 +62,11 @@ Once a model is selected, this page takes over.
 
 ## 🎨 UI & Aesthetics
 
-### Glass-morphism Theme
-The application utilizes a custom `glass-panel` CSS utility (defined in `index.css`) to create premium, frosted-glass effects across the Navbar, Sidebar, and Chat bubbles.
+### Glass-morphism Theme & Theming
+The application features a modern, highly responsive design built with **Tailwind CSS**. It incorporates a **Premium Glassmorphic** aesthetic using custom `glass-panel` CSS utilities (defined in `index.css`) and CSS backdrop filters across the Navbar, Sidebar, and Chat bubbles. It also supports a seamless toggle between a sleek Dark Mode and a sophisticated, off-white Light Mode (handled by `ThemeContext`).
+
+### Advanced Animations
+Animations (powered by `framer-motion`) provide a tactile experience, particularly in the Landing Page's interactive agent cards, page-transition effects, and collapsible elements.
 
 ### Dynamic Markdown Rendering
 AI responses are formatted dynamically via the `MarkdownRenderer.jsx` component. This component intercepts raw markdown and renders:

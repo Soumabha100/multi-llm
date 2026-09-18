@@ -19,10 +19,27 @@ class GeminiService(BaseLLMService):
         self,
         messages: List[ChatMessage],
         system_prompt: Optional[str] = None
-    ) -> Tuple[str, bool]:
+    ) -> Tuple[str, bool, str]:
         if not self.has_api_key or (self.demo_mode and not self.has_api_key):
             response = await generate_smart_answer("gemini", self.model_name, messages)
-            return response, True
+            return response, True, self.model_name
+
+        # Define fallback models explicitly prioritizing the user's primary model
+        fallback_models = [self.model_name]
+        default_fallbacks = [
+            "gemini-flash-latest",
+            "gemini-3.8-flash",
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-flash-lite-latest",
+            "gemini-3.1-flash-lite",
+            "gemma-4-26b-a4b-it"
+        ]
+        
+        # Add default fallbacks that are not the primary model
+        for m in default_fallbacks:
+            if m not in fallback_models:
+                fallback_models.append(m)
 
         # Build contents using Google GenAI types
         contents = []
@@ -47,15 +64,24 @@ class GeminiService(BaseLLMService):
         if system_prompt:
             config = types.GenerateContentConfig(system_instruction=system_prompt)
 
-        try:
-            response = await self.client.aio.models.generate_content(
-                model=self.model_name,
-                contents=contents,
-                config=config
-            )
-            text = (response.text or "").strip()
-            if not text:
-                raise RuntimeError("Gemini returned an empty response.")
-            return text, False
-        except Exception as exc:
-            raise RuntimeError(f"Gemini request failed: {str(exc)}")
+        last_error = None
+        for current_model in fallback_models:
+            try:
+                response = await self.client.aio.models.generate_content(
+                    model=current_model,
+                    contents=contents,
+                    config=config
+                )
+                text = (response.text or "").strip()
+                if not text:
+                    raise RuntimeError(f"Model {current_model} returned an empty response.")
+                
+                # If we succeeded, return immediately with the model that succeeded
+                return text, False, current_model
+            except Exception as exc:
+                print(f"[GeminiService] Model {current_model} failed: {str(exc)}")
+                last_error = exc
+                continue
+
+        # If all models failed, raise the final error
+        raise RuntimeError(f"Gemini request failed after trying all fallback models. Last error: {str(last_error)}")
