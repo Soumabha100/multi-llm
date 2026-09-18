@@ -1,7 +1,7 @@
 import re
 import httpx
 from typing import List, Optional
-from app.schemas.common import ChatMessage
+from app.schemas.common import ChatMessage, ChatRole
 
 
 async def fetch_knowledge_extract(query: str) -> Optional[str]:

@@ -14,7 +14,7 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 const modelsConfig = {
   tokenharbor: { name: 'Claude 3', icon: Bot, color: '#1d4ed8', bgClass: 'bg-[#1d4ed8]', borderClass: 'border-[#1d4ed8]/30', textClass: 'text-[#1d4ed8]' },
   openrouter: { name: 'GPT-3.5', icon: Sparkles, color: '#10a37f', bgClass: 'bg-[#10a37f]', borderClass: 'border-[#10a37f]/30', textClass: 'text-[#10a37f]' },
-  gemini: { name: 'Gemini 3.6', icon: Zap, color: '#8b5cf6', bgClass: 'bg-[#8b5cf6]', borderClass: 'border-[#8b5cf6]/30', textClass: 'text-[#8b5cf6]' }
+  gemini: { name: 'Gemini 3.8', icon: Zap, color: '#8b5cf6', bgClass: 'bg-[#8b5cf6]', borderClass: 'border-[#8b5cf6]/30', textClass: 'text-[#8b5cf6]' }
 };
 
 const SingleModelChat = () => {

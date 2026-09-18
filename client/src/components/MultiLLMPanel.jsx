@@ -66,7 +66,7 @@ const MultiLLMPanel = ({ isProcessing, responses, onSelectModel }) => {
   const models = [
     { id: 'tokenharbor', name: 'Claude 3', icon: Bot, colorClass: 'border-t-[#1d4ed8] bg-[#1d4ed8]', glowClass: 'hover:shadow-[#1d4ed8]/10' },
     { id: 'openrouter', name: 'GPT-3.5', icon: Sparkles, colorClass: 'border-t-[#10a37f] bg-[#10a37f]', glowClass: 'hover:shadow-[#10a37f]/10' },
-    { id: 'gemini', name: 'Gemini 3.6', icon: Zap, colorClass: 'border-t-[#8b5cf6] bg-[#8b5cf6]', glowClass: 'hover:shadow-[#8b5cf6]/10' },
+    { id: 'gemini', name: 'Gemini 3.8', icon: Zap, colorClass: 'border-t-[#8b5cf6] bg-[#8b5cf6]', glowClass: 'hover:shadow-[#8b5cf6]/10' },
   ];
 
   return (
