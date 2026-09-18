@@ -1,75 +1,63 @@
-# Multi-LLM ChatGPT Clone
+# Multi-LLM Custom ChatGPT Clone (Beta Version)
 
-A powerful, unified chat interface that allows users to interact with and compare multiple leading Large Language Models (LLMs) like OpenAI's GPT-4, Anthropic's Claude, and Google's Gemini all from a single application. It provides a ChatGPT-like experience with session management, authentication, and a responsive modern UI.
+Welcome to the **Multi-LLM Custom ChatGPT Clone**, a powerful, side-by-side AI chat application built to execute parallel reasoning across multiple Large Language Models (LLMs) simultaneously. 
 
-## Tech Stack
+This project fulfills the specifications of **Project 1**, allowing users to query multiple top-tier models (like OpenAI, Claude, and Gemini) at the exact same time, compare their answers side-by-side, and choose the best response to continue a deep, single-model conversation.
 
-**Frontend:**
-- React (with Vite)
-- Tailwind CSS
-- Firebase (Auth, Firestore, Hosting)
+## 🚀 Key Features
 
-**Backend:**
-- FastAPI (Python) *— handling the direct API interactions with LLM providers (to be integrated)*
+- **Ask a Single Question**: Users enter a single prompt into a unified chat interface.
+- **Query Multiple LLMs in Parallel**: The backend orchestrator sends the exact same prompt to multiple AI models simultaneously (e.g., GPT-3.5, Claude 3, Gemini 3.6).
+- **Compare & Continue**: The frontend presents all generated answers in a side-by-side panel layout. The user can evaluate the responses and click "Continue with this model" to seamlessly transition into a focused, single-LLM chat session.
+- **Persistent Memory & Sessions**: Every model maintains its own chat history (Short-term and Long-term memory), allowing for robust, continuous conversations.
+- **Modern UI/UX**: Built with a beautiful, fully responsive glass-morphism design, featuring smooth Framer Motion animations and robust Markdown rendering.
 
-## Prerequisites
+## 🛠 Tech Stack
 
-- **Node.js** (v18+ recommended)
-- A **Firebase Project** with the following services enabled:
-  - Authentication (Email/Password)
-  - Firestore Database
-  - Firebase Hosting (Optional, for deployment)
+- **Frontend**: React 19, Vite, Tailwind CSS 4, Framer Motion, Firebase Auth & Firestore.
+- **Backend**: Python 3.10+, FastAPI, Uvicorn, asyncio (for parallel execution).
+- **Tools**: VS Code / PyCharm.
 
-## Local Setup
+## 📚 Documentation Structure
 
-1. **Clone the repository:**
+For deep technical dives into how this application works, please refer to our detailed documentation files located in their respective directories:
+
+- [**Frontend Documentation**](./client/Docs.md): Covers React routing, Firebase Authentication, Firestore database logic, UI components, and Markdown formatting.
+- [**Backend Documentation**](./backend/Docs.md): Covers FastAPI architecture, parallel execution logic (`orchestrator.py`), API Key management, conversation memory, and API routes.
+
+## ⚙️ Getting Started
+
+### Prerequisites
+- Python 3.10+
+- Node.js & npm
+- Firebase Account (for Auth and Firestore)
+
+### Installation
+
+1. **Clone the repository** and navigate to the project root.
+2. **Setup Backend**:
    ```bash
-   git clone <your-repo-url>
-   cd AI-ML
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   pip install -r requirements.txt
    ```
+   *Note: Reference `backend/.env.example` to set up your required API keys (OpenAI, Gemini, Anthropic).*
 
-2. **Navigate to the frontend client:**
+3. **Setup Frontend**:
    ```bash
    cd client
-   ```
-
-3. **Install dependencies:**
-   ```bash
    npm install
    ```
+   *Note: Reference `client/.env.example` to set up your Firebase configuration keys.*
 
-4. **Configure Environment Variables:**
-   - Copy the provided example environment file to a new `.env` file:
-     ```bash
-     cp .env.example .env
-     ```
-   - Open `.env` and fill in your actual Firebase project configuration values.
+4. **Run the Application**:
+   - Start the backend server: `python run.py` (from the `backend` folder)
+   - Start the frontend dev server: `npm run dev` (from the `client` folder)
 
-5. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-   The app will be available at `http://localhost:5173/`.
+## 👥 Authors & Contributors
 
-## Build and Deploy
-
-To deploy the frontend to Firebase Hosting:
-
-1. **Build the production bundle:**
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy Firestore Rules, Indexes, and Hosting:**
-   ```bash
-   # Deploy Firestore security rules and composite indexes
-   firebase deploy --only firestore
-
-   # Deploy the frontend build to Hosting
-   firebase deploy --only hosting
-   ```
-
-## Team / Roles
-
-- **Person 1 (Frontend):** React UI, Firebase Auth, Firestore integration, routing, styling, and security rules.
-- **Person 2 (Backend):** FastAPI server, LLM provider integrations (OpenAI, Anthropic, Gemini), and API endpoints.
+This Beta Version was proudly developed and contributed to by:
+- **Tamalika Das**
+- **Soumabha Majumder**
+- **Shubham Ghosh**
